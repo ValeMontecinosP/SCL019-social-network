@@ -18,20 +18,26 @@ const db = getFirestore();
 console.log(db);
 const auth = getAuth();
 
+ /* ******** VISTA HOME ******* */
+
 export const home = () => {
 
-  //VISTA HOME
   history.pushState(null, 'home', '#home');
   
   let divHome = document.createElement("div");
   divHome.setAttribute("id", "home");
 
+
+   // ****** BOTON LOG OUT **********
   let buttonLogOut = document.createElement("button");
   buttonLogOut.setAttribute("class", "buttonLogOut");
   buttonLogOut.setAttribute("id", "buttonLogOut");
   buttonLogOut.textContent = "salir";
   divHome.appendChild(buttonLogOut);
 
+
+
+  // ************ WALL ****************
 
   let divWall = document.createElement("div"); 
   divWall.setAttribute("class","wall");
@@ -64,18 +70,7 @@ export const home = () => {
   divWall.appendChild(postContainer);
 
 
-  const userDataGoogle = async () => {
-    const user = auth.currentUser;
-    const userName = user.displayName;
-    if (user !== null) {
-      const docRef = await addDoc(collection(db, "google"), {
-        name: user.displayName,
-        email: user.email,
-        uid: user.uid,
-      });
-    }
-  };
-
+    // FUNCION PARA CREAR POST CON NOMBRE DE USUARIO 
   const createPost = async ( db, text ) => {
     
   let userName;
@@ -90,13 +85,13 @@ export const home = () => {
     name: userName,
     text,
     datepost: Timestamp.fromDate(new Date()),
-
     });
     console.log("Document written with ID: ", docRef.id)
   };
+ 
 
+  // FUNCION PARA MOSTRAR POST CON NOMBRE DE USUARIO
   const showPost =  async (db, documento ) => {
-
     const postAll = query(collection(db, "post"), orderBy("datepost", "desc"));
     const querySnapshot = await getDocs(postAll);
     const sectionPost = document.getElementById('postContainer');
@@ -104,7 +99,7 @@ export const home = () => {
     querySnapshot.forEach((documento) => {
       console.log(documento.id, '=>', documento.data().name);
 
-    
+    //creamos los componentes que contendrán cada nueva publicación
       const divPost = document.createElement('div');
       divPost.classList.add('divPost');
       let userIcon = document.createElement("img");
@@ -114,11 +109,15 @@ export const home = () => {
       userIcon.setAttribute("width", "25px");
       divPost.appendChild(userIcon);
 
-      const pPost = document.createElement('p');
-      pPost.classList.add('pPost');
+      const pUser = document.createElement("p");
+      pUser.setAttribute("class", "pUser");
+      const pPost = document.createElement("p");
+      pPost.setAttribute("class", "pPost");
 
+      pUser.innerHTML = documento.data().name;
       pPost.innerHTML = documento.data().text;
       
+      divPost.appendChild(pUser);
       divPost.appendChild(pPost);
       sectionPost.appendChild(divPost);
       divWall.appendChild(sectionPost);
@@ -126,24 +125,19 @@ export const home = () => {
     })
   }
 
+
+  //funciones de llamada a los botones 
   buttonSubmit.addEventListener("click", (post) => {
     post.preventDefault();
     let valuePost = postArea.value;
     createPost(db, valuePost);
-    //prueba(db, valuePost);
     showPost(db, valuePost);
     formHome.reset();
 
-    //****************** */
-
   })
 
-
-
   buttonLogOut.addEventListener("click", () => {
-    //close.preventDefault();
     const auth = getAuth();
-
 
     signOut(auth) 
      .then(() => {
@@ -158,6 +152,8 @@ export const home = () => {
 })
 
 
+
+// ********* MENU ********
 
 let divMenu = document.createElement("div");
   divMenu.setAttribute("class", "menu");
